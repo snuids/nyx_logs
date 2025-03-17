@@ -57,7 +57,7 @@ const FileViewer: React.FC<FileViewerProps> = ({ file, selectedFile, onBack,api,
       &nbsp;
       </Col>
       <Col
-      Col style={{padding:"10px"}}>
+       style={{padding:"10px"}}>
       <Button  type="primary" loading={loading} icon={<SyncOutlined />}
             onClick={() => setCount((count) => count + 1)}
       >Refresh</Button>
