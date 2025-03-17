@@ -166,7 +166,8 @@ function App() {
           size="small"
           style={{ width: "100%" }}
         />
-        <span title={window.location.href}>v1.0</span></>
+        <span title={'href->'+window.location.href+'\r\napi->'+api+'\r\nbasePath->'+basePath+'\r\ntoken->'+token}>v1.0</span>
+        </>
       )}
       
     </div>
