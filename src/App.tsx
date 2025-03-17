@@ -1,5 +1,5 @@
-import { Button, Breadcrumb, Table,Row,Col } from "antd";
-import { SyncOutlined } from "@ant-design/icons";
+import { Button, Breadcrumb, Table,Row,Col,Input } from "antd";
+import { HomeOutlined, SyncOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 
 import { useState, useEffect } from "react";
@@ -24,6 +24,7 @@ function App() {
   const [apiData, setApiData] = useState([]);
   const [basePath, setBasePath] = useState<string[]>([]); // Create basePath state
   const [selectedFile, setSelectedFile] = useState<string | null>(null); // State to track the selected file
+  const [filterText, setFilterText] = useState<string>(""); // State to track the filter text
 
   
   const transformBasePath = (
@@ -125,14 +126,25 @@ function App() {
         body: JSON.stringify({ rec_id: -1, path: basePath.join("/") }),
       })
         .then((response) => response.json())
-        .then((data) => setApiData(data.data))
-        .then(() => setLoading(false))
+        .then((data) => {
+          if (filterText==='')
+            setApiData(data.data)
+          else
+          {
+            const data2 = data.data.filter((item: FileDataType) => item.name.includes(filterText));
+            setApiData(data2);
+          }
+
+        })
+        .then(() => {setTimeout(() => {
+          setLoading(false);  
+        }, 300);})
         .catch((error) => console.error("Error fetching API:", error));
     }
-  }, [api, token, count, basePath]);
+  }, [api, token, count, basePath,filterText]);
 
   return (
-    <div style={{ width: "100%", padding: "20px",verticalAlign:"top", overflow:"hidden" }}>
+    <div style={{ width: "100%", padding: "5px",verticalAlign:"top", overflow:"hidden" }}>
       {!selectedFile &&  <Flex gap="middle" align="start" vertical style={{ marginBottom: 16 }}>
         <Row align="middle" >
           <Col style={{padding:"10px"}}>
@@ -146,18 +158,26 @@ function App() {
           </Button>
           </Col>
           <Col>
+          {basePath.length>1 && 
           <Breadcrumb>
             {transformBasePath(basePath).map((item, index) => (
               <Breadcrumb.Item key={index} onClick={item.onClick}>
-                {item.title}
+                {index==0 ? <HomeOutlined />:item.title}
               </Breadcrumb.Item>
             ))}
-          </Breadcrumb>
+          </Breadcrumb>}
+          </Col>
+          <Col>
+            <Input
+              placeholder="Filter by name"
+              value={filterText}
+              onChange={(e) => setFilterText(e.target.value)}
+            />
           </Col>
         </Row>
       </Flex>}
       {selectedFile ? (
-        <FileViewer file={basePath.join("/")+"/"+selectedFile} onBack={handleBack}  api={api} token={token}/>
+        <FileViewer file={basePath.join("/")+"/"+selectedFile} selectedFile={selectedFile} onBack={handleBack}  api={api} token={token}/>
       ) : (
         <>
         <Table
@@ -165,8 +185,12 @@ function App() {
           columns={columns}
           size="small"
           style={{ width: "100%" }}
+          pagination={{ pageSize: 16 }}
         />
-        <span title={'href->'+window.location.href+'\r\napi->'+api+'\r\nbasePath->'+basePath+'\r\ntoken->'+token}>v1.0</span>
+        <div style={{position:"absolute",bottom:"0",right:"0",padding:"10px"}}>
+        <span title={'href->'+window.location.href+'\r\napi->'+api+'\r\nbasePath->'+basePath+'\r\ntoken->'+token}>v0.6</span>
+        </div>
+        
         </>
       )}
       
