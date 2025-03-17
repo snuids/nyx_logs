@@ -188,7 +188,7 @@ function App() {
           pagination={{ pageSize: 16 }}
         />
         <div style={{position:"absolute",bottom:"0",right:"0",padding:"10px"}}>
-        <span title={'href->'+window.location.href+'\r\napi->'+api+'\r\nbasePath->'+basePath+'\r\ntoken->'+token}>v0.6</span>
+        <span title={'href->'+window.location.href+'\r\napi->'+api+'\r\nbasePath->'+basePath+'\r\ntoken->'+token}>v0.7</span>
         </div>
         
         </>
