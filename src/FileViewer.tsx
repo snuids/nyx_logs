@@ -34,7 +34,7 @@ const FileViewer: React.FC<FileViewerProps> = ({ file, onBack,api, token }) => {
   }, [api, token, file]);
 
   return (
-    <div padding="20px">
+    <div>
       <button  onClick={onBack}>Back</button>
       &nbsp;
       <span>Viewing File: {file}</span>
