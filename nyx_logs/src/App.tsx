@@ -132,7 +132,7 @@ function App() {
   }, [api, token, count, basePath]);
 
   return (
-    <div style={{ width: "100%", padding: "20px",verticalAlign:"top" }}>
+    <div style={{ width: "100%", padding: "20px",verticalAlign:"top", overflow:"hidden" }}>
       {!selectedFile &&  <Flex gap="middle" align="start" vertical style={{ marginBottom: 16 }}>
         <Row align="middle" >
           <Col style={{padding:"10px"}}>
@@ -159,13 +159,16 @@ function App() {
       {selectedFile ? (
         <FileViewer file={basePath.join("/")+"/"+selectedFile} onBack={handleBack}  api={api} token={token}/>
       ) : (
+        <>
         <Table
           dataSource={apiData}
           columns={columns}
           size="small"
           style={{ width: "100%" }}
         />
+        <span title={window.location.href}>v1.0</span></>
       )}
+      
     </div>
   );
 }
