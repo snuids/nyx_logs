@@ -51,7 +51,7 @@ const FileViewer: React.FC<FileViewerProps> = ({ file, selectedFile, onBack,api,
   }, [fileContent]);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
+    let interval: number | null = null;
     if (autoRefresh) {
       interval = setInterval(() => {
         setCount((count) => count + 1);
