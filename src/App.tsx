@@ -157,7 +157,7 @@ function App() {
             Refresh
           </Button>
           </Col>
-          <Col>
+          <Col style={{padding:"10px"}}>
           {basePath.length>1 && 
           <Breadcrumb>
             {transformBasePath(basePath).map((item, index) => (

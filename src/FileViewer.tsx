@@ -1,4 +1,4 @@
-import { Col,Row,Button } from 'antd';
+import { Col,Row,Button, Checkbox } from 'antd';
 import React, { useEffect, useState,useRef } from 'react';
 import { SyncOutlined } from "@ant-design/icons";
 
@@ -15,6 +15,7 @@ const FileViewer: React.FC<FileViewerProps> = ({ file, selectedFile, onBack,api,
   const [logs, setLogs] = useState<string | null>(null);
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [autoRefresh, setAutoRefresh] = useState(false);
   const fileContentRef = useRef<HTMLDivElement>(null);
 
   const setLogsData = (data: string) => {
@@ -49,6 +50,22 @@ const FileViewer: React.FC<FileViewerProps> = ({ file, selectedFile, onBack,api,
     }
   }, [fileContent]);
 
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    if (autoRefresh) {
+      interval = setInterval(() => {
+        setCount((count) => count + 1);
+      }, 5000);
+    } else if (interval) {
+      clearInterval(interval);
+    }
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [autoRefresh]);
+
   return (
     <div>
       <Row align="middle" >
@@ -66,6 +83,11 @@ const FileViewer: React.FC<FileViewerProps> = ({ file, selectedFile, onBack,api,
       <Col>
       <span>Viewing File: {selectedFile}</span>
       </Col>
+      <Col style={{ padding: "10px" }}>
+          <Checkbox checked={autoRefresh} onChange={(e) => setAutoRefresh(e.target.checked)}>
+            Auto Refresh
+          </Checkbox>
+        </Col>
       </Row>
       {fileContent ? (
         <div ref={fileContentRef} style={{fontFamily:"monospace",fontSize:"11px", overflow:"auto",textAlign:"left",position:"absolute",left:"10px",right:"10px",top:"80px",bottom:"10px",backgroundColor:"black",color:"white"}}
