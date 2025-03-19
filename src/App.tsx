@@ -1,9 +1,9 @@
 import { Button, Breadcrumb, Table,Row,Col,Input } from "antd";
-import { HomeOutlined, SyncOutlined } from "@ant-design/icons";
+import { HomeOutlined, SyncOutlined,FileOutlined,FolderOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 
 import { useState, useEffect } from "react";
-import { FaFile, FaFolder } from "react-icons/fa"; // Import the file icon from react-icons
+//import { FaFile, FaFolder } from "react-icons/fa"; // Import the file icon from react-icons
 import FileViewer from './FileViewer';
 import { Flex } from "antd";
 import "./App.css";
@@ -52,6 +52,13 @@ function App() {
     setSelectedFile(null); // Clear the selected file to go back to the table
   };
 
+  const formatSize = (size: number) => {
+    if (size < 1024) return `${size} B`;
+    if (size < 1024 * 1024) return `${(size / 1024).toFixed(2)} KB`;
+    if (size < 1024 * 1024 * 1024) return `${(size / (1024 * 1024)).toFixed(2)} MB`;
+    return `${(size / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+  };
+
   const columns: ColumnsType<FileDataType> = [
     {
       title: "Type",
@@ -59,11 +66,11 @@ function App() {
       key: "type",
       render: (text: string, record: FileDataType) =>
         text === "file" ? (
-          <FaFile onClick={() => handleFileClick(record.name)} style={{ cursor: "pointer" }} />
+          <FileOutlined  onClick={() => handleFileClick(record.name)} style={{ cursor: "pointer",fontSize: '140%' }} />
         ) : (
-          <FaFolder
+          <FolderOutlined 
             onClick={() => handleFolderClick(record.name)}
-            style={{ cursor: "pointer" }}
+            style={{ cursor: "pointer",fontSize: '140%' }}
           />
         ), // Render file icon if type is 'file'
       sorter: (a, b) => a.type.localeCompare(b.type),
@@ -72,6 +79,14 @@ function App() {
       title: "Name",
       dataIndex: "name",
       key: "name",
+      render: (text: string, record: FileDataType) => {
+        const isRecent = (Date.now() - record.modification_time * 1000) < 4 * 60 * 60 * 1000;
+        return (
+          <span style={{ color: isRecent ? 'red' : 'inherit' }}>
+            {text}
+          </span>
+        );
+      },
       sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
@@ -85,6 +100,7 @@ function App() {
       title: "Modification",
       dataIndex: "modification_time",
       key: "modification_time",
+      
       render: (text: number) => new Date(text * 1000).toLocaleString(),
       sorter: (a, b) => (a.modification_time > b.modification_time ? 1 : -1),
     },
@@ -92,6 +108,7 @@ function App() {
       title: "Size",
       dataIndex: "size",
       key: "size",
+      render: (size: number,record: FileDataType) => record.type!=="dir" ?formatSize(size):"",
       sorter: (a, b) => (a.size > b.size ? 1 : -1),
     },
   ];
@@ -188,7 +205,7 @@ function App() {
           pagination={{ pageSize: 16 }}
         />
         <div style={{position:"absolute",bottom:"0",right:"0",padding:"10px"}}>
-        <span title={'href->'+window.location.href+'\r\napi->'+api+'\r\nbasePath->'+basePath+'\r\ntoken->'+token}>v0.7</span>
+        <span title={'href->'+window.location.href+'\r\napi->'+api+'\r\nbasePath->'+basePath+'\r\ntoken->'+token}>v0.9</span>
         </div>
         
         </>

@@ -66,6 +66,23 @@ const FileViewer: React.FC<FileViewerProps> = ({ file, selectedFile, onBack,api,
     };
   }, [autoRefresh]);
 
+  const handleDownload = async () => {
+    try {
+      const response = await fetch(`${api}files?token=${token}&files=${file}&rec_id=-1&path=${file}`);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const blob = await response.blob();
+      const element = document.createElement("a");
+      element.href = URL.createObjectURL(blob);
+      element.download = selectedFile;
+      document.body.appendChild(element); // Required for this to work in FireFox
+      element.click();
+      document.body.removeChild(element); // Clean up
+    } catch (error) {
+      console.error('Error downloading file:', error);
+    }
+  };
   return (
     <div>
       <Row align="middle" >
@@ -87,6 +104,9 @@ const FileViewer: React.FC<FileViewerProps> = ({ file, selectedFile, onBack,api,
           <Checkbox checked={autoRefresh} onChange={(e) => setAutoRefresh(e.target.checked)}>
             Auto Refresh
           </Checkbox>
+        </Col>
+        <Col style={{ padding: "10px" }}>
+          <Button onClick={handleDownload}>Download</Button>
         </Col>
       </Row>
       {fileContent ? (
