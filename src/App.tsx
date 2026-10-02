@@ -12,6 +12,7 @@ import { useState, useEffect } from "react";
 import FileViewer from "./FileViewer";
 import { Flex } from "antd";
 import "./App.css";
+import { getLanguage, translate, type Lang } from "./i18n";
 
 interface FileDataType {
   type: string;
@@ -30,6 +31,10 @@ function App() {
   const [basePath, setBasePath] = useState<string[]>([]); // Create basePath state
   const [selectedFile, setSelectedFile] = useState<string | null>(null); // State to track the selected file
   const [filterText, setFilterText] = useState<string>(""); // State to track the filter text
+
+  const [language] = useState<Lang>(() => getLanguage());
+  const t = (key: string, params?: Record<string, string | number>) =>
+    translate(language, key, params);
 
   const transformBasePath = (
     basePath: string[]
@@ -66,7 +71,7 @@ function App() {
 
   const columns: ColumnsType<FileDataType> = [
     {
-      title: "Type",
+      title: t("type"),
       dataIndex: "type",
       key: "type",
       render: (text: string, record: FileDataType) =>
@@ -84,7 +89,7 @@ function App() {
       sorter: (a, b) => a.type.localeCompare(b.type),
     },
     {
-      title: "Name",
+      title: t("name"),
       dataIndex: "name",
       key: "name",
       render: (text: string, record: FileDataType) => {
@@ -108,14 +113,14 @@ function App() {
       sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
-      title: "Creation",
+      title: t("creation"),
       dataIndex: "creation_time",
       key: "creation_time",
       render: (text: number) => new Date(text * 1000).toLocaleString(),
       sorter: (a, b) => (a.creation_time > b.creation_time ? 1 : -1),
     },
     {
-      title: "Modification",
+      title: t("modification"),
       dataIndex: "modification_time",
       key: "modification_time",
 
@@ -123,7 +128,7 @@ function App() {
       sorter: (a, b) => (a.modification_time > b.modification_time ? 1 : -1),
     },
     {
-      title: "Size",
+      title: t("size"),
       dataIndex: "size",
       key: "size",
       render: (size: number, record: FileDataType) =>
@@ -176,7 +181,7 @@ function App() {
             setLoading(false);
           }, 300);
         })
-        .catch((error) => console.error("Error fetching API:", error));
+        .catch((error) => console.error(t("error_fetching"), error));
     }
   }, [api, token, count, basePath, filterText]);
 
@@ -199,7 +204,7 @@ function App() {
                 onClick={() => setCount((count) => count + 1)}
                 loading={loading}
               >
-                Refresh
+                {t("refresh")}
               </Button>
             </Col>
             <Col style={{ padding: "10px" }}>
@@ -215,7 +220,7 @@ function App() {
             </Col>
             <Col>
               <Input
-                placeholder="Filter by name"
+                placeholder={t('filter_by_name')}
                 value={filterText}
                 onChange={(e) => setFilterText(e.target.value)}
               />

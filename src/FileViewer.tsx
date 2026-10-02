@@ -1,6 +1,7 @@
 import { Col,Row,Button, Checkbox } from 'antd';
 import React, { useEffect, useState,useRef } from 'react';
 import { SyncOutlined } from "@ant-design/icons";
+import { getLanguage, translate } from "./i18n";
 
 interface FileViewerProps {
     selectedFile: string;
@@ -17,6 +18,10 @@ const FileViewer: React.FC<FileViewerProps> = ({ file, selectedFile, onBack,api,
   const [loading, setLoading] = useState(false);
   const [autoRefresh, setAutoRefresh] = useState(false);
   const fileContentRef = useRef<HTMLDivElement>(null);
+
+  const language = getLanguage();
+  const t = (key: string, params?: Record<string, string | number>) =>
+    translate(language, key, params);
 
   const setLogsData = (data: string) => {
     setLogs( JSON.parse(data).data);
@@ -37,7 +42,7 @@ const FileViewer: React.FC<FileViewerProps> = ({ file, selectedFile, onBack,api,
         }, 300);
         
       } catch (error) {
-        console.error('Error fetching file content:', error);
+        console.error(t("error_file_content"), error);
       }
     };
 
@@ -80,14 +85,14 @@ const FileViewer: React.FC<FileViewerProps> = ({ file, selectedFile, onBack,api,
       element.click();
       document.body.removeChild(element); // Clean up
     } catch (error) {
-      console.error('Error downloading file:', error);
+      console.error(t("error_download"), error);
     }
   };
   return (
     <div>
       <Row align="middle" >
         <Col style={{padding:"10px"}}>
-      <Button  onClick={onBack}>Back</Button>
+      <Button  onClick={onBack}>{t("back")}</Button>
       &nbsp;
       </Col>
       <Col
@@ -95,19 +100,19 @@ const FileViewer: React.FC<FileViewerProps> = ({ file, selectedFile, onBack,api,
       <Button  type="primary" loading={loading} icon={<SyncOutlined />}
             onClick={() => setCount((count) => count + 1)}
             disabled={autoRefresh}
-      >Refresh</Button>
+      >{t("refresh")}</Button>
       &nbsp;
       </Col>
       <Col>
-      <span>Viewing File: {selectedFile}</span>
+      <span>{t("viewing_file")} {selectedFile}</span>
       </Col>
       <Col style={{ padding: "10px" }}>
           <Checkbox checked={autoRefresh} onChange={(e) => setAutoRefresh(e.target.checked)}>
-            Auto Refresh
+            {t("auto_refresh")}
           </Checkbox>
         </Col>
         <Col style={{ padding: "10px" }}>
-          <Button onClick={handleDownload}>Download</Button>
+          <Button onClick={handleDownload}>{t("download")}</Button>
         </Col>
       </Row>
       
@@ -118,7 +123,7 @@ const FileViewer: React.FC<FileViewerProps> = ({ file, selectedFile, onBack,api,
       ):<p><div ref={fileContentRef} style={{fontFamily:"monospace",fontSize:"11px", overflow:"auto",textAlign:"left",position:"absolute",left:"10px",right:"10px",top:"80px",bottom:"10px",backgroundColor:"black",color:"white"}}
          dangerouslySetInnerHTML={{ __html: logs?.replace(/INFO/g,"<span class=\"info\">INFO</span>")
             .replace(/ERROR/g,"<span class=\"error\">ERROR</span>").replace(/\n/g, '<br>') || '' }} /></p>) : (
-        <p>Loading file content...</p>
+        <p>{t("loading_file_content")}</p>
       )}
     </div>
   );
