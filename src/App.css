@@ -52,5 +52,5 @@
 }
 
 .read-the-docs {
-  color: #888;
+  color: var(--nyx-muted);
 }

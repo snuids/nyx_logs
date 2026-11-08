@@ -1,54 +1,59 @@
-# React + TypeScript + Vite
+# nyx_logs
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The log and file browser of the NYX console: it lists a directory served by the API
+(`listdir`), lets you walk into folders, filter by name, and read a file in place
+(`streamfile`) or download it.
 
-Currently, two official plugins are available:
+It is a small React + TypeScript application (antd, Vite) meant to be **embedded** in the console:
+the console opens it as an external application, in an iframe, and hands it everything it needs
+through the URL.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## URL parameters
 
-## Expanding the ESLint configuration
+| parameter | meaning |
+|---|---|
+| `token` | the user's API token, passed to `listdir`, `streamfile` and `files` |
+| `api` | the API root, with its trailing slash (`https://host/api/v1/`) |
+| `path` | the directory to open first |
+| `lang` (or `language`, `locale`) | `en`, `fr`, `el` — anything else falls back to `en` |
+| `theme` | `light` or `dark`; `auto`, an unknown word or no parameter follows the system preference |
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+The console fills those in with the tokens of the external application it was configured with
+(`TOKEN`, `API`, `LANG`, `THEME`), so a typical entry is:
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```
+https://logs.example/logs/?token=TOKEN&api=API&theme=THEME
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Theme
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+`?theme=dark` (or `light`) wins over everything else. Without it, the app follows
+`prefers-color-scheme`, and keeps following it: a machine that switches to dark at sunset takes the
+window with it, which matters for a log viewer left open all day.
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+Two halves, applied together:
+
+- **antd** gets `ConfigProvider` with `darkAlgorithm`, so tables, buttons, inputs and pagination
+  repaint as a whole;
+- **our own styles** live in `src/index.css` as CSS variables (`--nyx-bg`, `--nyx-text`,
+  `--nyx-code-bg`, …) redefined under `html.dark`. `applyTheme` sets that class, plus `data-theme`
+  and `color-scheme` (without it a dark page keeps white scrollbars).
+
+The colours match the console's (`#14181f` background, `#dfe4ed` text), because two different dark
+greys side by side in one window are visible.
+
+## Commands
+
+```bash
+npm ci
+npm run dev      # http://127.0.0.1:5173/logs/ — `base` is `/logs/`
+npm run build    # tsc -b && vite build -> dist/
+npm test         # theme resolution, with the Node test runner (no extra dependency)
+npm run lint
 ```
+
+The image is built by `.github/workflows/docker-publish.yml`.
+
+## Licence
+
+BSD 2-Clause — see [LICENSE](LICENSE).
