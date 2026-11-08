@@ -40,6 +40,39 @@ describe("resolveTheme", () => {
   });
 });
 
+describe("resolveTheme — jeton non remplace", () => {
+  it("avertit quand la valeur n'est ni dark ni light (console plus ancienne que THEME)", () => {
+    const warnings: string[] = [];
+    const original = console.warn;
+    console.warn = (...args: unknown[]) => warnings.push(args.join(" "));
+
+    try {
+      // `THEME` arrive tel quel quand la console n'a pas fait la substitution
+      assert.equal(resolveTheme("THEME", false), "light");
+    } finally {
+      console.warn = original;
+    }
+
+    assert.equal(warnings.length, 1);
+    assert.match(warnings[0], /neither dark nor light/);
+    assert.match(warnings[0], /Ctrl\+Shift\+R/);
+  });
+
+  it("n'avertit pas pour `auto`, qui est une valeur prevue", () => {
+    let warned = 0;
+    const original = console.warn;
+    console.warn = () => { warned += 1; };
+
+    try {
+      resolveTheme("auto", false);
+    } finally {
+      console.warn = original;
+    }
+
+    assert.equal(warned, 0);
+  });
+});
+
 describe("urlTheme", () => {
   it("lit le parametre `theme` d'une chaine de requete", () => {
     assert.equal(urlTheme("?theme=dark&token=abc"), "dark");

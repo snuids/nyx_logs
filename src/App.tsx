@@ -283,7 +283,7 @@ function App() {
                 token
               }
             >
-              v0.9
+              v{__APP_VERSION__}
             </span>
           </div>
         </>

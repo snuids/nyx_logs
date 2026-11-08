@@ -13,6 +13,15 @@
 
 export type Theme = "light" | "dark";
 
+function warnUnresolved(value: string) {
+  if (typeof console === "undefined" || !console.warn) return;
+  console.warn(
+    `[nyx_logs] theme: "${value}" is neither dark nor light — falling back to the system ` +
+      `preference. If the parameter arrived as "THEME", the console that opened this window is ` +
+      `older than the token: reload it (Ctrl+Shift+R).`
+  );
+}
+
 /** The query parameter the console fills in. */
 export const THEME_PARAM = "theme";
 
@@ -31,6 +40,11 @@ export function resolveTheme(
 
   if (value === "dark" || value === "1" || value === "true") return "dark";
   if (value === "light" || value === "0" || value === "false") return "light";
+
+  // Un jeton que la console n'a pas remplace (`THEME`) ou une valeur fautive : le theme ne
+  // s'appliquera pas, et rien ne le dirait. C'est exactement le cas « ca ne marche pas » ou l'on
+  // cherche pendant une heure.
+  if (value && value !== "auto") warnUnresolved(value);
 
   return prefersDark ? "dark" : "light";
 }
