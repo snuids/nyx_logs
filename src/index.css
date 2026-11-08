@@ -1,11 +1,26 @@
+/*
+ * L'app porte deux themes : `html.dark` est pose par `applyTheme` (voir `theme.ts`), et les couleurs
+ * de l'app vivent ici en variables plutot qu'en dur — c'est ce qui permet a antd (via
+ * `ConfigProvider`) et a nos propres blocs de suivre le meme theme depuis la meme feuille.
+ */
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
+  /* Theme clair (defaut) */
+  --nyx-bg: #ffffff;
+  --nyx-text: #213547;
+  --nyx-muted: #808080;
+  --nyx-surface: #f9f9f9;
+  --nyx-link: #646cff;
+  --nyx-link-hover: #747bff;
+  --nyx-code-bg: #000000;
+  --nyx-code-fg: #ffffff;
+
   color-scheme: light;
-  color: #213547;
-  background-color: #ffffff;
+  color: var(--nyx-text);
+  background-color: var(--nyx-bg);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -13,13 +28,37 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/*
+ * Theme sombre. Les valeurs suivent celles de la console (`#14181f` pour le fond, `#dfe4ed` pour le
+ * texte) : dans une iframe, deux gris sombres differents se voient.
+ */
+html.dark {
+  --nyx-bg: #14181f;
+  --nyx-text: #dfe4ed;
+  --nyx-muted: #9aa4b5;
+  --nyx-surface: #1f2430;
+  --nyx-link: #8f96ff;
+  --nyx-link-hover: #a5abff;
+  --nyx-code-bg: #0b0e13;
+  --nyx-code-fg: #e6e9ef;
+
+  color-scheme: dark;
+}
+
+/* Le fond du document, pas seulement celui de `#root` : l'iframe entiere doit suivre. */
+html,
+body {
+  background-color: var(--nyx-bg);
+  color: var(--nyx-text);
+}
+
 a {
   font-weight: 500;
-  color: #646cff;
+  color: var(--nyx-link);
   text-decoration: inherit;
 }
 a:hover {
-  color: #747bff;
+  color: var(--nyx-link-hover);
 }
 
 body {
@@ -42,12 +81,12 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #f9f9f9;
+  background-color: var(--nyx-surface);
   cursor: pointer;
   transition: border-color 0.25s;
 }
 button:hover {
-  border-color: #646cff;
+  border-color: var(--nyx-link);
 }
 button:focus,
 button:focus-visible {

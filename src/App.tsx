@@ -1,4 +1,13 @@
-import { Button, Breadcrumb, Table, Row, Col, Input } from "antd";
+import {
+  Button,
+  Breadcrumb,
+  Table,
+  Row,
+  Col,
+  Input,
+  ConfigProvider,
+  theme as antdTheme,
+} from "antd";
 import {
   HomeOutlined,
   SyncOutlined,
@@ -13,6 +22,7 @@ import FileViewer from "./FileViewer";
 import { Flex } from "antd";
 import "./App.css";
 import { getLanguage, translate, type Lang } from "./i18n";
+import { useTheme } from "./useTheme";
 
 interface FileDataType {
   type: string;
@@ -32,6 +42,7 @@ function App() {
   const [selectedFile, setSelectedFile] = useState<string | null>(null); // State to track the selected file
   const [filterText, setFilterText] = useState<string>(""); // State to track the filter text
 
+  const theme = useTheme();
   const [language] = useState<Lang>(() => getLanguage());
   const t = (key: string, params?: Record<string, string | number>) =>
     translate(language, key, params);
@@ -101,7 +112,7 @@ function App() {
           <>
             {record.type!=="dir" &&
             <span
-              style={{ color: isRecent ? "red" : isOld ? "#888" : "inherit" }}
+              style={{ color: isRecent ? "red" : isOld ? "var(--nyx-muted)" : "inherit" }}
             >
               {text}
             </span>
@@ -185,7 +196,14 @@ function App() {
     }
   }, [api, token, count, basePath, filterText]);
 
+  // `darkAlgorithm` reprend toute la palette d'antd (tables, boutons, champs, pagination) ; nos
+  // propres couleurs passent par les variables CSS de `index.css`, keyees sur `html.dark`.
   return (
+    <ConfigProvider
+      theme={{
+        algorithm: theme === "dark" ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
+      }}
+    >
     <div
       style={{
         width: "100%",
@@ -271,6 +289,7 @@ function App() {
         </>
       )}
     </div>
+    </ConfigProvider>
   );
 }
 

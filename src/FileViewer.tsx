@@ -117,10 +117,10 @@ const FileViewer: React.FC<FileViewerProps> = ({ file, selectedFile, onBack,api,
       </Row>
       
       {fileContent ? (fileContent.indexOf('level')>0 ? (        
-        <div ref={fileContentRef} style={{fontFamily:"monospace",fontSize:"11px", overflow:"auto",textAlign:"left",position:"absolute",left:"10px",right:"10px",top:"80px",bottom:"10px",backgroundColor:"black",color:"white"}}
+        <div ref={fileContentRef} style={{fontFamily:"monospace",fontSize:"11px", overflow:"auto",textAlign:"left",position:"absolute",left:"10px",right:"10px",top:"80px",bottom:"10px",backgroundColor:"var(--nyx-code-bg)",color:"var(--nyx-code-fg)"}}
          dangerouslySetInnerHTML={{ __html: logs || '' }} />
         
-      ):<p><div ref={fileContentRef} style={{fontFamily:"monospace",fontSize:"11px", overflow:"auto",textAlign:"left",position:"absolute",left:"10px",right:"10px",top:"80px",bottom:"10px",backgroundColor:"black",color:"white"}}
+      ):<p><div ref={fileContentRef} style={{fontFamily:"monospace",fontSize:"11px", overflow:"auto",textAlign:"left",position:"absolute",left:"10px",right:"10px",top:"80px",bottom:"10px",backgroundColor:"var(--nyx-code-bg)",color:"var(--nyx-code-fg)"}}
          dangerouslySetInnerHTML={{ __html: logs?.replace(/INFO/g,"<span class=\"info\">INFO</span>")
             .replace(/ERROR/g,"<span class=\"error\">ERROR</span>").replace(/\n/g, '<br>') || '' }} /></p>) : (
         <p>{t("loading_file_content")}</p>
