@@ -2,102 +2,148 @@
  * Resolution du theme (voir `theme.ts`).
  *
  * L'app est ouverte par la console dans une iframe, avec son theme dans l'URL ; ouverte directement,
- * elle suit la preference du systeme. Ces deux regles se testent sans DOM.
+ * elle suit la preference du systeme. Ces deux regles se testent sans DOM — sauf `applyTheme`, qui
+ * doit peindre.
  *
- * Lancement : `npm test` (le lanceur de tests de Node, aucune dependance a ajouter).
+ * Lancement : `npm test`.
  */
 
-import { describe, it } from "node:test";
-import assert from "node:assert/strict";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { resolveTheme, urlTheme, getTheme, applyTheme } from "./theme.ts";
+import { applyTheme, getTheme, resolveTheme, systemPrefersDark, urlTheme } from "./theme";
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 describe("resolveTheme", () => {
   it("suit le parametre quand il est explicite", () => {
-    assert.equal(resolveTheme("dark", false), "dark");
-    assert.equal(resolveTheme("light", true), "light");
-    assert.equal(resolveTheme("DARK", false), "dark");
-    assert.equal(resolveTheme(" dark ", true), "dark");
+    expect(resolveTheme("dark", false)).toBe("dark");
+    expect(resolveTheme("light", true)).toBe("light");
+    expect(resolveTheme("DARK", false)).toBe("dark");
+    expect(resolveTheme(" dark ", true)).toBe("dark");
   });
 
   it("accepte les formes 1/0 et true/false d'un lien ecrit a la main", () => {
-    assert.equal(resolveTheme("1", false), "dark");
-    assert.equal(resolveTheme("true", false), "dark");
-    assert.equal(resolveTheme("0", true), "light");
-    assert.equal(resolveTheme("false", true), "light");
+    expect(resolveTheme("1", false)).toBe("dark");
+    expect(resolveTheme("true", false)).toBe("dark");
+    expect(resolveTheme("0", true)).toBe("light");
+    expect(resolveTheme("false", true)).toBe("light");
   });
 
   it("suit le systeme quand rien n'est demande", () => {
-    assert.equal(resolveTheme(null, true), "dark");
-    assert.equal(resolveTheme(undefined, false), "light");
-    assert.equal(resolveTheme("", true), "dark");
+    expect(resolveTheme(null, true)).toBe("dark");
+    expect(resolveTheme(undefined, false)).toBe("light");
+    expect(resolveTheme("", true)).toBe("dark");
   });
 
   it("traite `auto` et une valeur inconnue comme « suivre le systeme »", () => {
-    assert.equal(resolveTheme("auto", true), "dark");
-    assert.equal(resolveTheme("auto", false), "light");
-    assert.equal(resolveTheme("bleu", true), "dark");
+    expect(resolveTheme("auto", true)).toBe("dark");
+    expect(resolveTheme("auto", false)).toBe("light");
+    expect(resolveTheme("bleu", true)).toBe("dark");
   });
 });
 
 describe("resolveTheme — jeton non remplace", () => {
   it("avertit quand la valeur n'est ni dark ni light (console plus ancienne que THEME)", () => {
-    const warnings: string[] = [];
-    const original = console.warn;
-    console.warn = (...args: unknown[]) => warnings.push(args.join(" "));
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
 
-    try {
-      // `THEME` arrive tel quel quand la console n'a pas fait la substitution
-      assert.equal(resolveTheme("THEME", false), "light");
-    } finally {
-      console.warn = original;
-    }
+    // `THEME` arrive tel quel quand la console n'a pas fait la substitution
+    expect(resolveTheme("THEME", false)).toBe("light");
 
-    assert.equal(warnings.length, 1);
-    assert.match(warnings[0], /neither dark nor light/);
-    assert.match(warnings[0], /Ctrl\+Shift\+R/);
+    expect(warn).toHaveBeenCalledTimes(1);
+    const message = String(warn.mock.calls[0][0]);
+    expect(message).toMatch(/neither dark nor light/);
+    expect(message).toMatch(/Ctrl\+Shift\+R/);
   });
 
   it("n'avertit pas pour `auto`, qui est une valeur prevue", () => {
-    let warned = 0;
-    const original = console.warn;
-    console.warn = () => { warned += 1; };
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
 
-    try {
-      resolveTheme("auto", false);
-    } finally {
-      console.warn = original;
-    }
+    resolveTheme("auto", false);
 
-    assert.equal(warned, 0);
+    expect(warn).not.toHaveBeenCalled();
   });
 });
 
 describe("urlTheme", () => {
   it("lit le parametre `theme` d'une chaine de requete", () => {
-    assert.equal(urlTheme("?theme=dark&token=abc"), "dark");
-    assert.equal(urlTheme("?token=abc"), null);
-    assert.equal(urlTheme(""), null);
+    expect(urlTheme("?theme=dark&token=abc")).toBe("dark");
+    expect(urlTheme("?token=abc")).toBeNull();
+    expect(urlTheme("")).toBeNull();
   });
 
   it("ne casse pas sur une chaine malformee", () => {
-    assert.equal(urlTheme("??==&"), null);
+    expect(urlTheme("??==&")).toBeNull();
+  });
+
+  it("lit l'URL de la page quand on ne lui donne rien", () => {
+    window.history.replaceState({}, "", "/logs/?theme=dark");
+    expect(urlTheme()).toBe("dark");
+    window.history.replaceState({}, "", "/logs/");
+    expect(urlTheme()).toBeNull();
+  });
+});
+
+describe("systemPrefersDark", () => {
+  it("lit la preference du systeme", () => {
+    vi.stubGlobal("matchMedia", (query: string) => ({
+      matches: query.includes("dark"),
+      media: query,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    }));
+
+    expect(systemPrefersDark()).toBe(true);
+  });
+
+  it("repond « clair » quand le navigateur refuse la question", () => {
+    vi.stubGlobal("matchMedia", () => {
+      throw new Error("pas de media query ici");
+    });
+
+    expect(systemPrefersDark()).toBe(false);
   });
 });
 
 describe("getTheme", () => {
   it("prend le parametre de l'URL avant la preference systeme", () => {
     // hors navigateur, la preference systeme est « clair »
-    assert.equal(getTheme("?theme=dark"), "dark");
-    assert.equal(getTheme("?theme=light"), "light");
-    assert.equal(getTheme(""), "light");
+    expect(getTheme("?theme=dark")).toBe("dark");
+    expect(getTheme("?theme=light")).toBe("light");
+    expect(getTheme("")).toBe("light");
+  });
+
+  it("suit le systeme quand l'URL ne dit rien et que la machine est sombre", () => {
+    vi.stubGlobal("matchMedia", (query: string) => ({
+      matches: query.includes("dark"),
+      media: query,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    }));
+
+    expect(getTheme("")).toBe("dark");
   });
 });
 
 describe("applyTheme", () => {
-  it("pose la classe, l'attribut et le color-scheme (document absent : rend le theme)", () => {
-    // en environnement Node il n'y a pas de `document` : la fonction rend le theme sans rien peindre
-    assert.equal(applyTheme("dark"), "dark");
-    assert.equal(applyTheme("light"), "light");
+  it("pose la classe, l'attribut et le color-scheme sur <html>", () => {
+    expect(applyTheme("dark")).toBe("dark");
+
+    const root = document.documentElement;
+    expect(root.classList.contains("dark")).toBe(true);
+    expect(root.getAttribute("data-theme")).toBe("dark");
+    // sans `color-scheme`, une page sombre garde des barres de defilement blanches
+    expect(root.style.colorScheme).toBe("dark");
+  });
+
+  it("retire la classe quand on repasse en clair", () => {
+    applyTheme("dark");
+    expect(applyTheme("light")).toBe("light");
+
+    const root = document.documentElement;
+    expect(root.classList.contains("dark")).toBe(false);
+    expect(root.getAttribute("data-theme")).toBe("light");
+    expect(root.style.colorScheme).toBe("light");
   });
 });
