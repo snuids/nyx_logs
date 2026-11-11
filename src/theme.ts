@@ -41,9 +41,8 @@ export function resolveTheme(
   if (value === "dark" || value === "1" || value === "true") return "dark";
   if (value === "light" || value === "0" || value === "false") return "light";
 
-  // Un jeton que la console n'a pas remplace (`THEME`) ou une valeur fautive : le theme ne
-  // s'appliquera pas, et rien ne le dirait. C'est exactement le cas « ca ne marche pas » ou l'on
-  // cherche pendant une heure.
+  // A token the console did not substitute (`THEME`), or a wrong value: the theme will not apply,
+  // and nothing would say so. This is exactly the "it does not work" case one hunts for an hour.
   if (value && value !== "auto") warnUnresolved(value);
 
   return prefersDark ? "dark" : "light";

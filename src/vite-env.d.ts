@@ -1,4 +1,4 @@
 /// <reference types="vite/client" />
 
-/** Injecte par `vite.config.ts` : la version de `package.json`. */
+/** Injected by `vite.config.ts`: `package.json`'s version. */
 declare const __APP_VERSION__: string

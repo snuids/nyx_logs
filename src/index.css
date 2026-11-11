@@ -1,7 +1,7 @@
 /*
- * L'app porte deux themes : `html.dark` est pose par `applyTheme` (voir `theme.ts`), et les couleurs
- * de l'app vivent ici en variables plutot qu'en dur — c'est ce qui permet a antd (via
- * `ConfigProvider`) et a nos propres blocs de suivre le meme theme depuis la meme feuille.
+ * The app carries two themes: `html.dark` is set by `applyTheme` (see `theme.ts`), and the app's
+ * colours live here as variables rather than as literals — that is what lets antd (through
+ * `ConfigProvider`) and our own blocks follow the same theme from the same stylesheet.
  */
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -29,8 +29,8 @@
 }
 
 /*
- * Theme sombre. Les valeurs suivent celles de la console (`#14181f` pour le fond, `#dfe4ed` pour le
- * texte) : dans une iframe, deux gris sombres differents se voient.
+ * Dark theme. The values follow the console's (`#14181f` for the background, `#dfe4ed` for the
+ * text): inside an iframe, two different dark greys are visible.
  */
 html.dark {
   --nyx-bg: #14181f;
@@ -45,7 +45,7 @@ html.dark {
   color-scheme: dark;
 }
 
-/* Le fond du document, pas seulement celui de `#root` : l'iframe entiere doit suivre. */
+/* The document background, not only `#root`: the whole iframe has to follow. */
 html,
 body {
   background-color: var(--nyx-bg);

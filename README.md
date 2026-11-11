@@ -61,37 +61,36 @@ The image is built by `.github/workflows/docker-publish.yml`.
 
 BSD 2-Clause — see [LICENSE](LICENSE).
 
-## TESTS
+## Tests
 
 ```
-npm test              # la suite (vitest, jsdom), 63 tests
-npm run test:coverage # la meme chose, avec la mesure et le plancher
+npm test              # the suite (vitest, jsdom), 63 tests
+npm run test:coverage # the same, with the measurement and the floor
 ```
 
-La mesure porte sur **tout** `src/` (`include` dans `vitest.config.mjs`) : 97,1 % des instructions,
-89,9 % des branches, 100 % des fonctions, 98,9 % des lignes. Le plancher vit dans le meme fichier —
-c'est le niveau mesure, il monte quand des tests arrivent, il ne descend jamais.
+The measurement covers **all** of `src/` (`include` in `vitest.config.mjs`): 97.1 % of the
+instructions, 89.9 % of the branches, 100 % of the functions, 98.9 % of the lines. The floor lives in
+the same file — it is the measured level, it goes up when tests land, it never goes down.
 
-Ce que la suite tient, et pourquoi :
+What the suite holds, and why:
 
-- **la liste** — le dossier de l'URL est demande avec le jeton recu, les tailles sont lisibles
-  (`512 B`, `2.00 KB`, `5.00 MB`, `3.00 GB`), un dossier n'affiche pas de taille ;
-- **le fil** — la liste se filtre sur le nom sans perdre les autres entrees, et suit la langue de la
-  console (`?language=fr` donne « Filtrer par nom ») ;
-- **la navigation** — descendre dans un dossier relit le bon chemin et affiche le fil d'Ariane,
-  remonter par le fil refait la requete, ouvrir un fichier passe son chemin complet au lecteur,
-  revenir rend la liste ;
-- **le lecteur** — le HTML rendu par `streamfile` s'affiche tel quel, `INFO`/`ERROR` sont mis en
-  evidence quand le serveur ne l'a pas fait, le telechargement passe par `files`, l'actualisation
-  auto relit toutes les cinq secondes ;
-- **le theme** — `?theme=` gagne sur la preference systeme, `auto` et l'absence de parametre suivent
-  la machine (y compris quand elle change d'avis en cours de session), et `applyTheme` peint la
-  classe, l'attribut et le `color-scheme` sur `<html>` ;
-- **les pannes** — une requete qui echoue, une reponse 500, un corps qui n'est pas du JSON : chacune
-  est journalisee, aucune ne casse l'ecran.
+- **the list** — the directory from the URL is requested with the token that came with it, the sizes
+  are readable (`512 B`, `2.00 KB`, `5.00 MB`, `3.00 GB`), a directory shows no size;
+- **the filter** — the list filters on the name without losing the other entries, and follows the
+  console's language (`?language=fr` gives "Filtrer par nom");
+- **the navigation** — walking into a folder reads the right path and shows the breadcrumb, walking
+  back up through it repeats the request, opening a file hands its full path to the viewer, going
+  back restores the list;
+- **the viewer** — the HTML rendered by `streamfile` is shown as is, `INFO`/`ERROR` are highlighted
+  when the server did not do it, the download goes through `files`, the auto refresh reads again
+  every five seconds;
+- **the theme** — `?theme=` wins over the system preference, `auto` and a missing parameter follow
+  the machine (including when it changes its mind mid-session), and `applyTheme` paints the class,
+  the attribute and the `color-scheme` on `<html>`;
+- **the failures** — a request that fails, a 500 response, a body that is not JSON: each is logged,
+  none breaks the screen.
 
-**Un defaut fige par un test** : `FileViewer` fait `JSON.parse` sur le corps de `streamfile`. Un
-fichier qui n'est pas du JSON leve avant `setLoading(false)`, et le bouton Rafraichir tourne
-indefiniment. Le test `laisse le bouton en attente quand le fichier n'est pas du JSON` decrit ce
-comportement plutot que de le corriger — le corriger demande de decider ce qu'on affiche pour un
-fichier non colore par l'API.
+**One defect frozen by a test**: `FileViewer` runs `JSON.parse` on the body of `streamfile`. A file
+that is not JSON throws before `setLoading(false)`, and the Refresh button spins for ever. The test
+`laisse le bouton en attente quand le fichier n'est pas du JSON` (still in French, like every other
+test title) describes that behaviour rather than fixing it — fixing it means deciding what to show for a file the API did not colour.
