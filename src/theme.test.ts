@@ -1,11 +1,11 @@
 /**
- * Resolution du theme (voir `theme.ts`).
+ * Theme resolution (see `theme.ts`).
  *
- * L'app est ouverte par la console dans une iframe, avec son theme dans l'URL ; ouverte directement,
- * elle suit la preference du systeme. Ces deux regles se testent sans DOM — sauf `applyTheme`, qui
- * doit peindre.
+ * The console opens the app in an iframe, with the theme in the URL; opened directly, it follows the
+ * system preference. Both rules are testable without a DOM — except `applyTheme`, which has to
+ * paint.
  *
- * Lancement : `npm test`.
+ * Run: `npm test`.
  */
 
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -48,7 +48,7 @@ describe("resolveTheme — jeton non remplace", () => {
   it("avertit quand la valeur n'est ni dark ni light (console plus ancienne que THEME)", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
 
-    // `THEME` arrive tel quel quand la console n'a pas fait la substitution
+    // `THEME` arrives as is when the console did not perform the substitution
     expect(resolveTheme("THEME", false)).toBe("light");
 
     expect(warn).toHaveBeenCalledTimes(1);
@@ -108,7 +108,7 @@ describe("systemPrefersDark", () => {
 
 describe("getTheme", () => {
   it("prend le parametre de l'URL avant la preference systeme", () => {
-    // hors navigateur, la preference systeme est « clair »
+    // outside a browser, the system preference is "light"
     expect(getTheme("?theme=dark")).toBe("dark");
     expect(getTheme("?theme=light")).toBe("light");
     expect(getTheme("")).toBe("light");
@@ -133,7 +133,7 @@ describe("applyTheme", () => {
     const root = document.documentElement;
     expect(root.classList.contains("dark")).toBe(true);
     expect(root.getAttribute("data-theme")).toBe("dark");
-    // sans `color-scheme`, une page sombre garde des barres de defilement blanches
+    // without `color-scheme`, a dark page keeps white scrollbars
     expect(root.style.colorScheme).toBe("dark");
   });
 

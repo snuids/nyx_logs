@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// La version affichee en bas de l'ecran est celle du paquet : elle disait `v0.9` depuis la 1.0.
+// The version shown at the bottom of the screen is the package's: it had been saying `v0.9` since 1.0.
 import pkg from './package.json'
 
 // https://vite.dev/config/

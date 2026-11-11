@@ -1,9 +1,9 @@
 /**
- * Ce que jsdom ne fournit pas et qu'antd utilise.
+ * What jsdom does not provide and antd uses.
  *
- * `matchMedia` et `ResizeObserver` sont absents de jsdom ; sans eux, tout rendu de tableau ou de
- * `ConfigProvider` lève avant même d'avoir peint. Les tests qui doivent piloter le thème ou le
- * redimensionnement remplacent ces doublures localement (`vi.stubGlobal`).
+ * `matchMedia` and `ResizeObserver` are missing from jsdom; without them, any table or
+ * `ConfigProvider` render throws before painting anything. Tests that need to drive the theme or
+ * the resizing replace these doubles locally (`vi.stubGlobal`).
  */
 
 import '@testing-library/jest-dom/vitest'
@@ -12,7 +12,7 @@ import { cleanup } from '@testing-library/react'
 
 afterEach(() => {
   cleanup()
-  // `applyTheme` ecrit la classe sur <html> : un test ne doit pas la laisser au suivant
+  // `applyTheme` writes the class on <html>: a test must not leave it behind for the next one
   document.documentElement.className = ''
   document.documentElement.removeAttribute('data-theme')
 })
@@ -39,14 +39,14 @@ if (!globalThis.ResizeObserver) {
   } as unknown as typeof ResizeObserver
 }
 
-// antd mesure la taille des barres de defilement avec `getComputedStyle(el, '::-webkit-scrollbar')`,
-// et jsdom leve « Not implemented » des qu'on lui passe un pseudo-element.
+// antd measures the scrollbar width with `getComputedStyle(el, '::-webkit-scrollbar')`, and jsdom
+// throws "Not implemented" as soon as it is given a pseudo-element.
 const getComputedStyle = window.getComputedStyle.bind(window)
-// le pseudo-element est ignore : antd ne lit que la largeur de la barre de defilement
+// the pseudo-element is dropped: antd only reads the scrollbar width
 window.getComputedStyle = ((element: Element) =>
   getComputedStyle(element)) as typeof window.getComputedStyle
 
-// antd mesure le conteneur pour ses tables : sans `getBoundingClientRect`, il rend une table vide
+// antd measures the container for its tables: without `getBoundingClientRect` it renders an empty table
 if (!Element.prototype.getBoundingClientRect) {
   Element.prototype.getBoundingClientRect = () =>
     ({ width: 1024, height: 768, top: 0, left: 0, bottom: 768, right: 1024, x: 0, y: 0, toJSON: () => ({}) }) as DOMRect

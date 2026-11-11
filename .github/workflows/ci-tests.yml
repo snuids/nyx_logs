@@ -1,8 +1,8 @@
 name: CI - Tests
 
-# `npm run test:coverage` lance la suite (vitest + jsdom) et mesure **tous** les fichiers de `src/` :
-# avant, c8 ne mesurait que ce que les tests importaient — un module — et le depot affichait 85 %
-# alors que deux tiers du code n'avait aucun test. Le plancher vit dans `vitest.config.mjs`.
+# `npm run test:coverage` runs the suite (vitest + jsdom) and measures **every** file under `src/`:
+# before, c8 measured only what the tests imported — one module — and the repo showed 85 % while
+# two thirds of the code had no test at all. The floor lives in `vitest.config.mjs`.
 on:
   pull_request:
     paths:
@@ -61,7 +61,7 @@ jobs:
           set -euo pipefail
           test -f coverage/coverage-summary.json
           pct=$(node -e "process.stdout.write(String(require('./coverage/coverage-summary.json').total.statements.pct))")
-          # la couleur suit la valeur : un chiffre bas ne doit pas se lire comme rassurant
+          # the colour follows the value: a low number must not read as reassuring
           colour=$(node -e "
             const v = Number('$pct');
             const c = v >= 92 ? 'brightgreen' : v >= 85 ? 'green' : v >= 75 ? 'yellowgreen'
